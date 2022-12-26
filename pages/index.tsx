@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   Heading,
@@ -11,13 +12,12 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { ESign } from "../components";
 
 export default function Home() {
   const [accessToken, setAccessToken] = useState("");
   const [userInfo, setUserInfo] = useState<any>();
   const [templates, setTemplates] = useState<any[]>([]);
-  const [agreementUrl, setAgreementUrl] = useState("");
+  const [clickwrapHtml, setClickwrapHtml] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const { toggleColorMode } = useColorMode();
@@ -84,7 +84,27 @@ export default function Home() {
 
     axios
       .post("/api/docusign/esign", body)
-      .then((response) => setAgreementUrl(response.data.agreementUrl))
+      .then((response) => {
+        const clickwrap = response.data;
+        setClickwrapHtml(`<div id="ds-clickwrap"></div>
+      <script src="https://demo.docusign.net/clickapi/sdk/latest/docusign-click.js"></script>
+      <script>
+      docuSignClick.Clickwrap.render({
+        environment: 'https://demo.docusign.net',
+        accountId: '${clickwrap.accountId}',
+        clickwrapId: '${clickwrap.clickwrapId}',
+        clientUserId: '${clickwrap.clientUserId}',
+        documentData: {
+          fullName: '${clickwrap.documentData.fullName}',
+          email: '${clickwrap.documentData.email}',
+          company: '${clickwrap.documentData.company}',
+          title: '${clickwrap.documentData.title}',
+          date: '${clickwrap.documentData.date}'
+        }
+      }, '#ds-clickwrap');
+      </script>
+      `);
+      })
       .catch((error) => console.error(error))
       .finally(() => setIsLoading(false));
   };
@@ -138,9 +158,15 @@ export default function Home() {
               ))}
             </VStack>
           )}
-          {agreementUrl && <ESign agreementUrl={agreementUrl} />}
         </Flex>
       </Flex>
+      {clickwrapHtml && (
+        <Box
+          dangerouslySetInnerHTML={{
+            __html: clickwrapHtml,
+          }}
+        />
+      )}
     </main>
   );
 }

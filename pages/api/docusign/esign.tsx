@@ -18,6 +18,7 @@ const handler = async (
         dsApiClient.setBasePath(
           process.env.NEXT_PUBLIC_DOCUSIGN_CLICKAPI_BASE_URL
         );
+
         dsApiClient.addDefaultHeader("Authorization", "Bearer " + token);
 
         const userAgreement =

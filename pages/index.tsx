@@ -54,9 +54,8 @@ export default function Home() {
 
   const handleOnClick = () => {
     setIsLoading(true);
-    const redirectUri = "http://localhost:3000";
     const scope = "signature click.manage click.send";
-    const url = `https://account-d.docusign.com/oauth/auth?response_type=code&scope=${scope}&client_id=${process.env.NEXT_PUBLIC_DOCUSIGN_INTEGRATION_KEY}&redirect_uri=${redirectUri}`;
+    const url = `https://account-d.docusign.com/oauth/auth?response_type=code&scope=${scope}&client_id=${process.env.NEXT_PUBLIC_DOCUSIGN_INTEGRATION_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_DOCUSIGN_REDIRECT_URI}`;
     router.push(url);
     setIsLoading(false);
   };

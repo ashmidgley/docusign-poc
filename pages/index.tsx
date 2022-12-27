@@ -11,13 +11,14 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Script from "next/script";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [accessToken, setAccessToken] = useState("");
   const [userInfo, setUserInfo] = useState<any>();
   const [templates, setTemplates] = useState<any[]>([]);
-  const [clickwrapHtml, setClickwrapHtml] = useState("");
+  const [agreementUrl, setAgreementUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const { toggleColorMode } = useColorMode();
@@ -84,33 +85,14 @@ export default function Home() {
 
     axios
       .post("/api/docusign/esign", body)
-      .then((response) => {
-        const clickwrap = response.data;
-        setClickwrapHtml(`<div id="ds-clickwrap"></div>
-      <script src="https://demo.docusign.net/clickapi/sdk/latest/docusign-click.js"></script>
-      <script>
-      docuSignClick.Clickwrap.render({
-        environment: 'https://demo.docusign.net',
-        accountId: '${clickwrap.accountId}',
-        clickwrapId: '${clickwrap.clickwrapId}',
-        clientUserId: '${clickwrap.clientUserId}',
-        documentData: {
-          fullName: '${clickwrap.documentData.fullName}',
-          email: '${clickwrap.documentData.email}',
-          company: '${clickwrap.documentData.company}',
-          title: '${clickwrap.documentData.title}',
-          date: '${clickwrap.documentData.date}'
-        }
-      }, '#ds-clickwrap');
-      </script>
-      `);
-      })
+      .then((response) => setAgreementUrl(response.data.agreementUrl))
       .catch((error) => console.error(error))
       .finally(() => setIsLoading(false));
   };
 
   return (
     <main>
+      <Box id="ds-clickwrap" />
       <Flex h="100vh" alignItems="center" justifyContent="center">
         <Switch
           onChange={toggleColorMode}
@@ -160,12 +142,16 @@ export default function Home() {
           )}
         </Flex>
       </Flex>
-      {clickwrapHtml && (
-        <Box
-          dangerouslySetInnerHTML={{
-            __html: clickwrapHtml,
-          }}
-        />
+      {agreementUrl && (
+        <Script id="embed">
+          {window !== undefined &&
+            window.docuSignClick.Clickwrap.render(
+              {
+                agreementUrl: agreementUrl,
+              },
+              "#ds-clickwrap"
+            )}
+        </Script>
       )}
     </main>
   );

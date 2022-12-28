@@ -90,6 +90,10 @@ export default function Home() {
       .finally(() => setIsLoading(false));
   };
 
+  const handleOnAgreed = (value: any): void => {
+    console.log(value);
+  };
+
   return (
     <main>
       <Box id="ds-clickwrap" />
@@ -148,6 +152,7 @@ export default function Home() {
             window.docuSignClick.Clickwrap.render(
               {
                 agreementUrl: agreementUrl,
+                onAgreed: handleOnAgreed,
               },
               "#ds-clickwrap"
             )}
